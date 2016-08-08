@@ -44,7 +44,7 @@ def hobbs_vdist2(x):
 def sample_kick_distribution_a(a,m1,m2,m1f,vdist=flat_vdist,\
         num_v=20,num_theta=20,num_phi=10,filename="kick.data",output_in_days=False):
     linspace_v = np.linspace(0,1,num_v+2)
-    v_vals = hobbs_vdist(linspace_v[1:-1])
+    v_vals = hobbs_vdist2(linspace_v[1:-1])
 
     theta_vals = np.linspace(0,math.pi,num_theta+2)[1:-1]
     phi_vals = np.linspace(0,2*math.pi,num_phi+2)[1:-1]
@@ -96,7 +96,7 @@ def sample_kick_distribution_a(a,m1,m2,m1f,vdist=flat_vdist,\
     return [sum_weights_merge/sum_weights, sum_weights_disrupt/sum_weights]
 
 def sample_kick_distribution_P(P,m1,m2,m1f,\
-        num_v=20,num_theta=20,num_phi=10,filename="kick.data"):
+        num_v=100,num_theta=100,num_phi=20,filename="kick.data"):
     return sample_kick_distribution_a(kepler3_a(P,m1,m2),m1,m2,m1f,\
             num_v=num_v,num_theta=num_theta,num_phi=num_phi,filename=filename,\
             output_in_days=True)
