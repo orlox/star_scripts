@@ -41,10 +41,11 @@ def hobbs_vdist2(x):
 
 #sample a velocity distribution vdist and return merger times, final periods and eccentricities
 #vdist is the inverse cumulative distribution velocity
-def sample_kick_distribution_a(a,m1,m2,m1f,vdist=flat_vdist,\
-        num_v=20,num_theta=20,num_phi=10,filename="kick.data",output_in_days=False):
+def sample_kick_distribution_a(a,m1,m2,m1f,vdist=hobbs_vdist,\
+        num_v=100,num_theta=100,num_phi=20,filename="kick.data",\
+        report_progress=False, save_data=False, output_in_days=False):
     linspace_v = np.linspace(0,1,num_v+2)
-    v_vals = hobbs_vdist2(linspace_v[1:-1])
+    v_vals = vdist(linspace_v[1:-1])
 
     theta_vals = np.linspace(0,math.pi,num_theta+2)[1:-1]
     phi_vals = np.linspace(0,2*math.pi,num_phi+2)[1:-1]
@@ -52,7 +53,8 @@ def sample_kick_distribution_a(a,m1,m2,m1f,vdist=flat_vdist,\
     dtheta = math.pi/(num_theta)
     dphi = 2*math.pi/(num_phi)
 
-    f = open(filename, 'w')
+    if save_data:
+        f = open(filename, 'w')
 
     k = 0
     numsim = len(v_vals)*len(theta_vals)*len(phi_vals)
@@ -63,40 +65,49 @@ def sample_kick_distribution_a(a,m1,m2,m1f,vdist=flat_vdist,\
         for theta_val in theta_vals:
             for phi_val in phi_vals:
                 k=k+1
-                print str(k)+"/"+str(numsim)+", "+str(v_val)+", "+str(theta_val)+", "+str(phi_val)
+                if report_progress and k%10000==0:
+                    print str(k)+"/"+str(numsim)+", "+str(v_val)+", "+str(theta_val)+", "+str(phi_val)
                 weight = dtheta*dphi*np.sin(theta_val)/(4*math.pi)/(num_v)
                 sum_weights += weight
                 orbit = post_kick_parameters_a(a,m1,m2,m1f,v_val,theta_val,phi_val)
-                merge_time = T_merger_a_e(orbit[0],orbit[1],m1f,m2)
+                if orbit[1] > 1 or not np.isfinite(orbit[0]) or not np.isfinite(orbit[1]):
+                    sum_weights_disrupt += weight
+                    merge_time = float("inf")
+                else:
+                    merge_time = T_merger_a_e(orbit[0],orbit[1],m1f,m2)
+
                 if output_in_days:
                     orbit[0] = kepler3_P(orbit[0],m1f,m2)
-                f.write("{0:>20e}".format(v_val)+"   "\
-                       +"{0:>20e}".format(theta_val)+"   "\
-                       +"{0:>20e}".format(phi_val)+"   "\
-                       +"{0:>20e}".format(orbit[0])+"   "\
-                       +"{0:>20e}".format(orbit[1])+"   "\
-                       +"{0:>20e}".format(merge_time)+"   "\
-                       +"{0:>20e}".format(weight))
-                f.write("\n")
+                if save_data:
+                    f.write("{0:>20e}".format(v_val)+"   "\
+                           +"{0:>20e}".format(theta_val)+"   "\
+                           +"{0:>20e}".format(phi_val)+"   "\
+                           +"{0:>20e}".format(orbit[0])+"   "\
+                           +"{0:>20e}".format(orbit[1])+"   "\
+                           +"{0:>20e}".format(merge_time)+"   "\
+                           +"{0:>20e}".format(weight))
+                    f.write("\n")
 
-                if not np.isfinite(orbit[0]):
-                    sum_weights_disrupt += weight
-                elif merge_time < 13.8:
+                if merge_time < 13.8:
                     sum_weights_merge += weight
 
-    f.close()
-    if not output_in_days:
-        print "modelled system with a=",a,"m1=",m1,"m2=",m2,"m1f=",m1f
-    else:
-        print "modelled system with P=",kepler3_P(a,m1,m2),"m1=",m1,"m2=",m2,"m1f=",m1f
-    print "RESULTS:"
-    print "sum weights:",sum_weights
-    print "merging fraction:",sum_weights_merge/sum_weights
-    print "disrupt fraction:",sum_weights_disrupt/sum_weights
+    if save_data:
+        f.close()
+
+    if report_progress:
+        if not output_in_days:
+            print "modelled system with a=",a,"m1=",m1,"m2=",m2,"m1f=",m1f
+        else:
+            print "modelled system with P=",kepler3_P(a,m1,m2),"m1=",m1,"m2=",m2,"m1f=",m1f
+        print "RESULTS:"
+        print "sum weights:",sum_weights
+        print "merging fraction:",sum_weights_merge/sum_weights
+        print "disrupt fraction:",sum_weights_disrupt/sum_weights
     return [sum_weights_merge/sum_weights, sum_weights_disrupt/sum_weights]
 
-def sample_kick_distribution_P(P,m1,m2,m1f,\
-        num_v=100,num_theta=100,num_phi=20,filename="kick.data"):
-    return sample_kick_distribution_a(kepler3_a(P,m1,m2),m1,m2,m1f,\
+def sample_kick_distribution_P(P,m1,m2,m1f,vdist=hobbs_vdist,\
+        num_v=200,num_theta=200,num_phi=20,filename="kick.data",\
+        report_progress=False, save_data=False):
+    return sample_kick_distribution_a(kepler3_a(P,m1,m2),m1,m2,m1f,vdist=vdist,\
             num_v=num_v,num_theta=num_theta,num_phi=num_phi,filename=filename,\
-            output_in_days=True)
+            report_progress=report_progress, save_data=save_data, output_in_days=True)

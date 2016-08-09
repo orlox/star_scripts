@@ -1,4 +1,14 @@
 NS+BH model (merge:6.5%, disrupt:59%)
 1.85                0.35                1.15        3.162278e-04      MT_to_pm_caseA        5.636993e+01        1.244532e+01        1.187005e+01
+RESULTS:
+sum weights: 1.00497954054
+merging fraction: 0.0653211136965
+disrupt fraction: 0.586887443707
+
 BH+BH (merge:0.3%, disrupt:0%)
 2.35                0.35                1.75        3.162278e-04      MT_to_pm_caseA        1.361821e+02        4.875670e+01        1.271574e+01
+RESULTS:
+sum weights: 1.00497954054
+merging fraction: 0.00239806560576
+disrupt fraction: 0.0
+12.7,48.8,136,43.9

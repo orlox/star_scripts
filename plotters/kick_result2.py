@@ -36,8 +36,8 @@ import colormaps as cmaps
 plt.register_cmap(name='viridis', cmap=cmaps.viridis)
 plt.set_cmap(cmaps.viridis)
 
-data = np.loadtxt("../kick.data")
-orbit = kicks.post_kick_parameters_P(12.7,49,136,45,0,0,0)
+data = np.loadtxt("kick.dataBH")
+orbit = kicks.post_kick_parameters_P(12.7,48.8,136,43.9,0,0,0)
 
 norm = mpl.colors.Normalize(vmin=0,vmax=16)
 
@@ -48,17 +48,23 @@ scatter = axes.scatter(data[:,3][np.logical_and(data[:,5]>0,True)],\
 axes.scatter(orbit[0], orbit[1], marker="s", s=20, linewidth='0')
 
 for kickv in [40,80]:
-    orbit = [kicks.post_kick_parameters_P(12.7,49,136,45,kickv,theta,0) \
+    orbit = [kicks.post_kick_parameters_P(12.7,48.8,136,43.9,kickv,theta,0) \
             for theta in np.linspace(0,math.pi,50)]
     orbit = np.array(orbit)
-    axes.plot(orbit[:,0],orbit[:,1],"k-",linewidth=1)
+    axes.plot(orbit[:,0],orbit[:,1],"k-",linewidth=0.5)
+
+#for kicktheta in [math.pi,math.pi-math.pi/4,math.pi-math.pi/3]:
+#    orbit = [kicks.post_kick_parameters_P(12.7,48.8,136,43.9,kickv,kicktheta,0) \
+#            for kickv in np.linspace(0,100,500)]
+#    orbit = np.array(orbit)
+#    axes.plot(orbit[:,0],orbit[:,1],color="0.5",linestyle="--",linewidth=0.5)
 
 axes.text(14,0.18,"$v=40\\;{\\rm km\\;s^{-1}}$", rotation =30, fontsize = 7)
 axes.text(18,0.38,"$v=80\\;{\\rm km\\;s^{-1}}$", rotation =20, fontsize = 7)
 
 cbar = plt.colorbar(scatter)
 cbar.set_label("Merger time ${\\rm[Gyr]}$")
-axes.set_xlabel("$\\log\\;P\\;{\\rm[d]}$")
+axes.set_xlabel("$P\\;{\\rm[d]}$")
 axes.set_ylabel("eccentricity")
 axes.set_xlim([0,25])
 axes.set_ylim([0,1])

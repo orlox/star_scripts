@@ -51,7 +51,13 @@ for kickv in [100,200,300,400]:
     orbit = [kicks.post_kick_parameters_P(11.9,12.4,56.4,1.4,kickv,theta,0) \
             for theta in np.linspace(0,math.pi,50)]
     orbit = np.array(orbit)
-    axes.plot(orbit[:,0],orbit[:,1],"k-",linewidth=1)
+    axes.plot(orbit[:,0],orbit[:,1],"k-",linewidth=0.5)
+
+for kicktheta in [math.pi,math.pi-math.pi/4,math.pi-math.pi/3]:
+    orbit = [kicks.post_kick_parameters_P(11.9,12.4,56.4,1.4,kickv,kicktheta,0) \
+            for kickv in np.linspace(0,1000,500)]
+    orbit = np.array(orbit)
+    axes.plot(orbit[:,0],orbit[:,1],color="0.5",linestyle="--",linewidth=0.5)
 
 axes.text(15,0.32,"$v=100\\;{\\rm km\\;s^{-1}}$", rotation =20, fontsize = 7)
 axes.text(15,0.50,"$v=200\\;{\\rm km\\;s^{-1}}$", rotation =8, fontsize = 7)
@@ -60,7 +66,7 @@ axes.text(15,0.86,"$v=400\\;{\\rm km\\;s^{-1}}$", rotation =-4, fontsize = 7)
 
 cbar = plt.colorbar(scatter)
 cbar.set_label("Merger time ${\\rm[Gyr]}$")
-axes.set_xlabel("$\\log\\;P\\;{\\rm[d]}$")
+axes.set_xlabel("$P\\;{\\rm[d]}$")
 axes.set_ylabel("eccentricity")
 axes.set_xlim([0,25])
 axes.set_ylim([0,1])
